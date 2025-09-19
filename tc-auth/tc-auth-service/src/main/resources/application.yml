@@ -1,0 +1,69 @@
+server:
+  port: 9000
+  servlet:
+    context-path: /auth
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: tc123456
+    key-store-type: PKCS12
+    key-alias: tc-auth
+  http2:
+    enabled: true
+
+spring:
+  application:
+    name: tc-auth-service
+  
+  profiles:
+    active: dev
+  
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tc_auth?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        
+  security:
+    oauth2:
+      authorization-server:
+        issuer: http://localhost:9000/auth
+      client:
+        registration:
+          tc-client:
+            client-id: tc-client
+            client-secret: tc-secret
+            scope: openid,profile,read,write
+            authorization-grant-type: authorization_code
+            redirect-uri: http://127.0.0.1:8080/login/oauth2/code/tc-client
+        provider:
+          tc-provider:
+            issuer-uri: http://localhost:9000/auth
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    com.tcyh.auth: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+
+# 微信配置
+wechat:
+  app-id: your_wechat_app_id
+  app-secret: your_wechat_app_secret
+
+# 短信配置
+sms:
+  provider: aliyun  # 短信服务提供商
+  template-id: SMS_123456789  # 短信模板ID
+  sign-name: TC系统  # 短信签名
