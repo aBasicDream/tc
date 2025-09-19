@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: tc-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tc_user
+      MYSQL_USER: tc_user
+      MYSQL_PASSWORD: tc_user
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./tc-user/tc-user-service/doc/tc_user.sql:/docker-entrypoint-initdb.d/tc_user.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: tc-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tc-user-service:
+    build:
+      context: ./tc-user/tc-user-service
+      dockerfile: Dockerfile
+    container_name: tc-user-service
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tc_user?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: tc_user
+      SPRING_DATASOURCE_PASSWORD: tc_user
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./tc-user/tc-user-service/logs:/app/logs
+
+  tc-gateway:
+    build:
+      context: ./tc-gateway
+      dockerfile: Dockerfile
+    container_name: tc-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+      tc-user-service:
+        condition: service_started
+    volumes:
+      - ./tc-gateway/logs:/app/logs
+
+volumes:
+  mysql_data:
+  redis_data:

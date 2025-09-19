@@ -1,0 +1,67 @@
+spring:
+  # Redis配置 - 使用Redisson
+  redis:
+    host: 192.168.1.52
+    port: 6379
+    password: test123456
+    database: 0
+    timeout: 5000ms
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # 用户服务路由
+        - id: tc-user-service
+          uri: http://tc-user-service:8080
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 认证服务路由
+        - id: tc-auth-service
+          uri: http://tc-user-service:8080
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 公开接口路由
+        - id: tc-public-service
+          uri: http://tc-user-service:8080
+          predicates:
+            - Path=/api/public/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 测试接口路由
+        - id: tc-test-service
+          uri: http://tc-user-service:8080
+          predicates:
+            - Path=/api/test/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # Swagger文档路由
+        - id: tc-swagger
+          uri: http://tc-user-service:8080
+          predicates:
+            - Path=/swagger-ui/**,/v3/api-docs/**,/swagger-resources/**,/webjars/**
+          filters:
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 健康检查路由
+        - id: tc-actuator
+          uri: http://tc-user-service:8080
+          predicates:
+            - Path=/actuator/**
+          filters:
+            - AddRequestHeader=X-Gateway, tc-gateway

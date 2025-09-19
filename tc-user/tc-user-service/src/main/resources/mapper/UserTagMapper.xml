@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcyh.user.mapper.UserTagMapper">
+
+    <select id="selectTagsByUserId" resultType="com.tcyh.user.entity.UserTag">
+        SELECT * FROM user_tag WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectTagsByUserIdAndType" resultType="com.tcyh.user.entity.UserTag">
+        SELECT * FROM user_tag WHERE user_id = #{userId} AND tag_type = #{tagType} ORDER BY create_time DESC
+    </select>
+
+</mapper>

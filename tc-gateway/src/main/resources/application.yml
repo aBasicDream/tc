@@ -1,0 +1,91 @@
+server:
+  port: 8089
+  ssl:
+    key-store: classpath:javaboy.p12
+    key-store-password: test123456
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: tc-gateway
+  profiles:
+    include: common
+  # Gateway配置
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # 用户服务路由
+        - id: tc-user-service
+          uri: lb://tc-user-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 公开接口路由
+        - id: tc-auth-service
+          uri: lb://tc-user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 测试接口路由
+        - id: tc-test-service
+          uri: lb://tc-user-service
+          predicates:
+            - Path=/api/test/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # Swagger文档路由
+        - id: tc-swagger
+          uri: lb://tc-user-service
+          predicates:
+            - Path=/swagger-ui/**,/v3/api-docs/**,/swagger-resources/**,/webjars/**
+          filters:
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 健康检查路由
+        - id: tc-actuator
+          uri: lb://tc-user-service
+          predicates:
+            - Path=/actuator/**
+          filters:
+            - AddRequestHeader=X-Gateway, tc-gateway
+        
+        # 监控接口路由
+        - id: tc-monitor
+          uri: lb://tc-gateway
+          predicates:
+            - Path=/api/monitor/**
+          filters:
+            - AddRequestHeader=X-Gateway, tc-gateway
+
+# JWT配置
+jwt:
+  secret: tc-gateway-jwt-secret-key-for-distributed-system
+  expiration: 86400
+
+# 日志配置 - 使用logback-spring.xml
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

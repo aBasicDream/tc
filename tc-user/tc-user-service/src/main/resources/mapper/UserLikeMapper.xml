@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcyh.user.mapper.UserLikeMapper">
+
+    <select id="selectLikeByUserAndContent" resultType="com.tcyh.user.entity.UserLike">
+        SELECT * FROM user_like 
+        WHERE user_id = #{userId} AND content_id = #{contentId} AND content_type = #{contentType}
+    </select>
+
+    <select id="countLikesByContent" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM user_like 
+        WHERE content_id = #{contentId} AND content_type = #{contentType} AND status = 1
+    </select>
+
+</mapper>

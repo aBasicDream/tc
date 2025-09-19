@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcyh.user.mapper.UserLoginLogMapper">
+
+    <select id="selectRecentLoginLogs" resultType="com.tcyh.user.entity.UserLoginLog">
+        SELECT * FROM user_login_log 
+        WHERE user_id = #{userId} 
+        ORDER BY login_time DESC 
+        LIMIT #{limit}
+    </select>
+
+    <select id="countTodayLoginTimes" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM user_login_log 
+        WHERE user_id = #{userId} 
+        AND DATE(login_time) = CURDATE()
+    </select>
+
+    <select id="countLoginTimesByIp" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM user_login_log 
+        WHERE user_id = #{userId} AND login_ip = #{loginIp}
+    </select>
+
+</mapper>

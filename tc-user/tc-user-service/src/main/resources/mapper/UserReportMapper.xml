@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcyh.user.mapper.UserReportMapper">
+
+    <select id="selectReportsByStatus" resultType="com.tcyh.user.entity.UserReport">
+        SELECT * FROM user_report WHERE status = #{status} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectReportsByReporterId" resultType="com.tcyh.user.entity.UserReport">
+        SELECT * FROM user_report WHERE reporter_id = #{reporterId} ORDER BY create_time DESC
+    </select>
+
+    <select id="countReportsByContent" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM user_report 
+        WHERE content_id = #{contentId} AND content_type = #{contentType}
+    </select>
+
+</mapper>

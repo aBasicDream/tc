@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcyh.user.mapper.UserFansMapper">
+
+    <select id="selectByUserId" resultType="com.tcyh.user.entity.UserFans">
+        SELECT * FROM user_fans WHERE user_id = #{userId}
+    </select>
+
+    <update id="updateFansCount">
+        UPDATE user_fans 
+        SET fans_count = #{fansCount}, follow_count = #{followCount}, update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>
